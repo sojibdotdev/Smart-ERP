@@ -304,14 +304,20 @@ export default function PartsCorner() {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Left Section */}
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-blue-600">Parts Corner</h1>
-            <Badge variant="outline" className="ml-2">
+            <h1 className="text-lg sm:text-xl font-bold text-blue-600">
+              Parts Corner
+            </h1>
+            <Badge variant="outline" className="hidden md:inline-flex ml-2">
               Inventory Management
             </Badge>
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Right Section */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Refresh Button */}
             <Button
               variant="outline"
               size="sm"
@@ -319,8 +325,10 @@ export default function PartsCorner() {
               onClick={fetchItems}
             >
               <RefreshCw className="h-4 w-4" />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
+
+            {/* Generate Invoice Button */}
             <Button
               variant="outline"
               size="sm"
@@ -329,9 +337,11 @@ export default function PartsCorner() {
               disabled={selectedItems.length === 0}
             >
               <FileText className="h-4 w-4" />
-              Generate Invoice
+              <span className="hidden sm:inline">Generate Invoice</span>
             </Button>
-            <div className="text-sm text-muted-foreground">
+
+            {/* Date */}
+            <div className="text-sm text-muted-foreground hidden sm:block">
               Date: {new Date().toLocaleDateString()}
             </div>
           </div>
