@@ -1,57 +1,38 @@
-import fs from "fs";
+import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
-import path from "path";
 
-// Path to our JSON file that acts as a simple database
-const DB_PATH = path.join(process.cwd(), "data", "items.json");
+// MongoDB connection URI
+const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+const client = new MongoClient(uri);
 
-// Ensure the data directory exists
-const ensureDataDir = () => {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
-  // Create empty database file if it doesn't exist
-  if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify([]), "utf8");
-  }
-};
-
-// Read items from the database
-const getItems = () => {
-  ensureDataDir();
-  try {
-    const data = fs.readFileSync(DB_PATH, "utf8");
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error reading items:", error);
-    return [];
-  }
-};
-
-// Write items to the database
-const saveItems = (items: any[]) => {
-  ensureDataDir();
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(items, null, 2), "utf8");
-    return true;
-  } catch (error) {
-    console.error("Error saving items:", error);
-    return false;
-  }
-};
+// Connect to MongoDB
+async function connectToDB() {
+  await client.connect();
+  const db = client.db("parts_corner");
+  return db.collection("items");
+}
 
 // GET handler to retrieve all items
 export async function GET() {
-  const items = getItems();
-  return NextResponse.json(items);
+  try {
+    const collection = await connectToDB();
+    const items = await collection.find({}).toArray();
+    return NextResponse.json(items);
+  } catch (error) {
+    console.error("Error fetching items:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch items" },
+      { status: 500 }
+    );
+  } finally {
+    await client.close();
+  }
 }
 
 // POST handler to create a new item
 export async function POST(request: Request) {
   try {
-    const items = getItems();
+    const collection = await connectToDB();
     const data = await request.json();
 
     // Calculate total price
@@ -62,13 +43,9 @@ export async function POST(request: Request) {
 
     // Generate new item
     const newItem = {
-      id:
-        items.length > 0
-          ? Math.max(...items.map((item: any) => item.id)) + 1
-          : 1,
       selected: false,
       highlighted: data.highlighted || false,
-      slNo: items.length + 1,
+      slNo: (await collection.countDocuments({})) + 1,
       partNo: data.partNo,
       qty: qty,
       unitPrice: unitPrice,
@@ -76,15 +53,20 @@ export async function POST(request: Request) {
       stock: stock,
     };
 
-    items.push(newItem);
-    saveItems(items);
+    // Insert the new item into the database
+    const result = await collection.insertOne(newItem);
 
-    return NextResponse.json(newItem, { status: 201 });
+    return NextResponse.json(
+      { ...newItem, _id: result.insertedId },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating item:", error);
     return NextResponse.json(
       { error: "Failed to create item" },
       { status: 500 }
     );
+  } finally {
+    await client.close();
   }
 }

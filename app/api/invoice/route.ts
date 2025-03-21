@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     });
 
     // Draw table headers
-    page.drawText("Item Description", {
+    page.drawText("Part No", {
       x: colPositions[0] + 5,
       y: currentY - 10,
       size: 10,
@@ -181,7 +181,7 @@ export async function POST(request: Request) {
           color: rgb(0.9, 0.9, 0.9),
         });
 
-        page.drawText("Item Description", {
+        page.drawText("Part No", {
           x: colPositions[0] + 5,
           y: currentY - 10,
           size: 10,
@@ -224,7 +224,7 @@ export async function POST(request: Request) {
       }
 
       // Draw item details
-      page.drawText(item.partName, {
+      page.drawText(item.partNo, {
         x: colPositions[0] + 5,
         y: currentY,
         size: 10,
@@ -248,7 +248,7 @@ export async function POST(request: Request) {
         color: rgb(0, 0, 0),
       });
 
-      page.drawText(`₹${item.totalPrice.toFixed(2)}`, {
+      page.drawText(`${item.totalPrice.toFixed(2)}`, {
         x: colPositions[3] + 5,
         y: currentY,
         size: 10,
@@ -286,7 +286,7 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText(`₹${totalAmount.toFixed(2)}`, {
+    page.drawText(`${totalAmount.toFixed(2)}`, {
       x: colPositions[3] + 5,
       y: currentY - 10,
       size: 12,

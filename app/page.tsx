@@ -57,7 +57,7 @@ import {
 import { useEffect, useState } from "react";
 
 interface RequisitionItem {
-  id: number;
+  _id: string; // Updated to use MongoDB's _id
   selected: boolean;
   highlighted: boolean;
   slNo: number;
@@ -109,12 +109,12 @@ export default function PartsCorner() {
     fetchItems();
   }, []);
 
-  const toggleHighlight = async (id: number) => {
+  const toggleHighlight = async (_id: string) => {
     try {
-      const item = items.find((item) => item.id === id);
+      const item = items.find((item) => item._id === _id);
       if (!item) return;
 
-      const response = await fetch(`/api/items/${id}`, {
+      const response = await fetch(`/api/items/${_id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,9 @@ export default function PartsCorner() {
       if (response.ok) {
         setItems(
           items.map((item) =>
-            item.id === id ? { ...item, highlighted: !item.highlighted } : item
+            item._id === _id
+              ? { ...item, highlighted: !item.highlighted }
+              : item
           )
         );
       }
@@ -139,9 +141,9 @@ export default function PartsCorner() {
     }
   };
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (_id: string) => {
     const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, selected: !item.selected } : item
+      item._id === _id ? { ...item, selected: !item.selected } : item
     );
     setItems(updatedItems);
 
@@ -202,17 +204,25 @@ export default function PartsCorner() {
     }
   };
 
-  const handleDeleteItem = async (id: number) => {
+  const handleDeleteItem = async (_id: string) => {
     try {
-      const response = await fetch(`/api/items/${id}`, {
+      const response = await fetch(`/api/items/${_id}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
-        setItems(items.filter((item) => item.id !== id));
+        setItems(items.filter((item) => item._id !== _id));
         toast({
           title: "Item deleted successfully",
           description: "The item has been removed from inventory",
+        });
+      } else {
+        // Handle non-OK responses (e.g., 404 Not Found)
+        const errorData = await response.json();
+        toast({
+          title: "Error deleting item",
+          description: errorData.error || "Failed to delete the item",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -242,7 +252,9 @@ export default function PartsCorner() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ items: selectedItems }),
+        body: JSON.stringify({
+          items: [...selectedItems],
+        }),
       });
 
       if (response.ok) {
@@ -477,11 +489,11 @@ export default function PartsCorner() {
                     ) : (
                       filteredItems.map((item, index) => (
                         <TableRow
-                          key={item.id}
+                          key={item._id}
                           className={`cursor-pointer ${
                             item.highlighted ? "bg-blue-100" : ""
                           } ${item.selected ? "bg-green-100" : ""}`}
-                          onClick={() => toggleSelect(item.id)}
+                          onClick={() => toggleSelect(item._id)}
                         >
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item.partNo}</TableCell>
@@ -501,7 +513,7 @@ export default function PartsCorner() {
                                 size="icon"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toggleHighlight(item.id);
+                                  toggleHighlight(item._id);
                                 }}
                               >
                                 <FileText className="h-4 w-4" />
@@ -551,7 +563,7 @@ export default function PartsCorner() {
                                       Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                      onClick={() => handleDeleteItem(item.id)}
+                                      onClick={() => handleDeleteItem(item._id)}
                                       className="bg-red-500 hover:bg-red-600"
                                     >
                                       Delete
@@ -605,7 +617,7 @@ export default function PartsCorner() {
               </TableHeader>
               <TableBody>
                 {selectedItems.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow key={item._id}>
                     <TableCell>{item.partNo}</TableCell>
                     <TableCell className="text-right">{item.qty}</TableCell>
                     <TableCell className="text-right">
