@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText("Beside Sanabil Supar Market, Gangachara, Rangpur 5410", {
+    page.drawText("Beside Sanabil Supar Market, Gangachara,", {
       x: rightColumnX,
       y: pageHeight - margin - 15,
       size: 10,
@@ -92,9 +92,17 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText("md.utshab85696@amail.com | 01792-703854", {
+    page.drawText("Rangpur 5410", {
       x: rightColumnX,
       y: pageHeight - margin - 30,
+      size: 10,
+      font: helveticaFont,
+      color: rgb(0, 0, 0),
+    });
+
+    page.drawText("md.utshab85696@amail.com | 01792-703854", {
+      x: rightColumnX,
+      y: pageHeight - margin - 45,
       size: 10,
       font: helveticaFont,
       color: rgb(0, 0, 0),
