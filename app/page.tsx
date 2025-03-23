@@ -65,7 +65,8 @@ interface RequisitionItem {
   qty: number;
   unitPrice: number;
   totalPrice: number;
-  stock: number;
+  productName: string;
+  boxNo: string;
 }
 
 export default function PartsCorner() {
@@ -79,7 +80,8 @@ export default function PartsCorner() {
     partNo: "",
     qty: "",
     unitPrice: "",
-    stock: "",
+    productName: "",
+    boxNo: "",
   });
 
   // Fetch items from API
@@ -153,10 +155,15 @@ export default function PartsCorner() {
   };
 
   const handleAddItem = async () => {
-    if (newItem.partNo && newItem.qty && newItem.unitPrice && newItem.stock) {
+    if (
+      newItem.partNo &&
+      newItem.qty &&
+      newItem.unitPrice &&
+      newItem.productName &&
+      newItem.boxNo
+    ) {
       const qty = Number.parseInt(newItem.qty);
       const unitPrice = Number.parseFloat(newItem.unitPrice);
-      const stock = Number.parseInt(newItem.stock);
 
       try {
         const response = await fetch("/api/items", {
@@ -168,7 +175,8 @@ export default function PartsCorner() {
             partNo: newItem.partNo,
             qty: qty,
             unitPrice: unitPrice,
-            stock: stock,
+            productName: newItem.productName,
+            boxNo: newItem.boxNo,
             highlighted: false,
           }),
         });
@@ -180,7 +188,8 @@ export default function PartsCorner() {
             partNo: "",
             qty: "",
             unitPrice: "",
-            stock: "",
+            productName: "",
+            boxNo: "",
           });
           toast({
             title: "Item added successfully",
@@ -414,6 +423,16 @@ export default function PartsCorner() {
                   />
                 </div>
                 <div>
+                  <label className="text-sm font-medium">Product Name</label>
+                  <Input
+                    value={newItem.productName}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, productName: e.target.value })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+                <div>
                   <label className="text-sm font-medium">Quantity</label>
                   <Input
                     type="number"
@@ -425,7 +444,7 @@ export default function PartsCorner() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Unit Price</label>
+                  <label className="text-sm font-medium">Price</label>
                   <Input
                     type="number"
                     value={newItem.unitPrice}
@@ -436,14 +455,13 @@ export default function PartsCorner() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Stock</label>
+                  <label className="text-sm font-medium">Box No</label>
                   <Input
-                    type="number"
-                    value={newItem.stock}
+                    value={newItem.boxNo}
                     onChange={(e) =>
-                      setNewItem({ ...newItem, stock: e.target.value })
+                      setNewItem({ ...newItem, boxNo: e.target.value })
                     }
-                    className="mt-1"
+                    className="mt-1 border-blue-500"
                   />
                 </div>
               </div>
@@ -479,9 +497,10 @@ export default function PartsCorner() {
                     <TableRow className="bg-muted/50">
                       <TableHead className="w-12">SL</TableHead>
                       <TableHead>Part No</TableHead>
+                      <TableHead className="text-right">Product Name</TableHead>
                       <TableHead className="text-right">Qty</TableHead>
-                      <TableHead className="text-right">Unit Price</TableHead>
-                      <TableHead className="text-right">Stock</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Box No</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -508,13 +527,17 @@ export default function PartsCorner() {
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item.partNo}</TableCell>
                           <TableCell className="text-right">
+                            {item.productName}
+                          </TableCell>
+
+                          <TableCell className="text-right">
                             {item.qty}
                           </TableCell>
                           <TableCell className="text-right">
                             {item.unitPrice.toFixed(2)}
                           </TableCell>
                           <TableCell className="text-right">
-                            {item.stock}
+                            {item.boxNo}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -620,8 +643,9 @@ export default function PartsCorner() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Part No</TableHead>
+                  <TableHead className="text-right">Product Name</TableHead>
                   <TableHead className="text-right">Qty</TableHead>
-                  <TableHead className="text-right">Unit Price</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                 </TableRow>
               </TableHeader>
@@ -629,6 +653,9 @@ export default function PartsCorner() {
                 {selectedItems.map((item) => (
                   <TableRow key={item._id}>
                     <TableCell>{item.partNo}</TableCell>
+                    <TableCell className="text-right">
+                      {item.productName}
+                    </TableCell>
                     <TableCell className="text-right">{item.qty}</TableCell>
                     <TableCell className="text-right">
                       {item.unitPrice.toFixed(2)}

@@ -137,7 +137,7 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText("Unit Price", {
+    page.drawText("Price", {
       x: colPositions[2] + 5,
       y: currentY - 10,
       size: 10,
@@ -197,7 +197,7 @@ export async function POST(request: Request) {
           color: rgb(0, 0, 0),
         });
 
-        page.drawText("Unit Price", {
+        page.drawText("Price", {
           x: colPositions[2] + 5,
           y: currentY - 10,
           size: 10,

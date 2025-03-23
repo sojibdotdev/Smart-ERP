@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const qty = Number.parseInt(data.qty);
     const unitPrice = Number.parseFloat(data.unitPrice);
     const totalPrice = qty * unitPrice;
-    const stock = Number.parseInt(data.stock);
+    // const stock = Number.parseInt(data.stock);
 
     // Generate new item
     const newItem = {
@@ -50,7 +50,8 @@ export async function POST(request: Request) {
       qty: qty,
       unitPrice: unitPrice,
       totalPrice: totalPrice,
-      stock: stock,
+      productName: data.productName,
+      BoxNo: data.BoxNo,
     };
 
     // Insert the new item into the database
