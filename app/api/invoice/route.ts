@@ -4,7 +4,7 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 export async function POST(request: Request) {
   try {
     const { items } = await request.json();
-    console.log("items from route", items);
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "No items provided" }, { status: 400 });
     }
@@ -103,6 +103,14 @@ export async function POST(request: Request) {
     page.drawText("md.utshab85696@amail.com | 01792-703854", {
       x: rightColumnX,
       y: pageHeight - margin - 45,
+      size: 10,
+      font: helveticaFont,
+      color: rgb(0, 0, 0),
+    });
+
+    page.drawText("01718297404 | 01740820094", {
+      x: rightColumnX,
+      y: pageHeight - margin - 60,
       size: 10,
       font: helveticaFont,
       color: rgb(0, 0, 0),
