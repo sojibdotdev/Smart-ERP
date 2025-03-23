@@ -57,10 +57,9 @@ export async function PATCH(
     const updatedItem = { ...item, ...data };
 
     // Recalculate total price if quantity or unit price changed
-    if (data.qty || data.unitPrice) {
+    if (data.qty) {
       const qty = data.qty || item.qty;
-      const unitPrice = data.unitPrice || item.unitPrice;
-      updatedItem.totalPrice = qty * unitPrice;
+      updatedItem.qty = qty;
     }
 
     // Save the updated item

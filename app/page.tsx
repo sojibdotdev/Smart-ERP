@@ -49,6 +49,7 @@ import { toast } from "@/components/ui/use-toast";
 import {
   Download,
   FileText,
+  Minus,
   Plus,
   Printer,
   RefreshCw,
@@ -76,6 +77,7 @@ export default function PartsCorner() {
   const [filterType, setFilterType] = useState("all");
   const [selectedItems, setSelectedItems] = useState<RequisitionItem[]>([]);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [loadingQty, setLoadingQty] = useState(false);
   const [newItem, setNewItem] = useState({
     partNo: "",
     qty: "",
@@ -297,6 +299,92 @@ export default function PartsCorner() {
       });
     }
   };
+  const handleDecrementQty = async (_id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const item = items.find((item) => item._id === _id);
+      if (!item) {
+        console.error("Item not found");
+        return;
+      }
+      setLoadingQty(true);
+      if (item.qty === 0) {
+        console.error("Quantity is already 0");
+        return;
+      }
+
+      const updatedItem = { ...item, qty: item.qty - 1 };
+      setItems(
+        items.map((item) =>
+          item._id === _id ? { ...item, qty: updatedItem.qty } : item
+        )
+      );
+
+      const response = await fetch(`/api/items/${_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          qty: updatedItem.qty,
+        }),
+      });
+
+      if (response.ok) {
+        setItems(
+          items.map((item) =>
+            item._id === _id ? { ...item, qty: updatedItem.qty } : item
+          )
+        );
+        setLoadingQty(false);
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast({
+        title: "Error updating item",
+        description: "Could not update the item status",
+        variant: "destructive",
+      });
+    }
+  };
+  const handleIncrementQty = async (_id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const item = items.find((item) => item._id === _id);
+      if (!item) return;
+      setLoadingQty(true);
+      const updatedItem = { ...item, qty: item.qty + 1 };
+      setItems(
+        items.map((item) =>
+          item._id === _id ? { ...item, qty: updatedItem.qty } : item
+        )
+      );
+      const response = await fetch(`/api/items/${_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          qty: updatedItem.qty,
+        }),
+      });
+      if (response.ok) {
+        setItems(
+          items.map((item) =>
+            item._id === _id ? { ...item, qty: updatedItem.qty } : item
+          )
+        );
+        setLoadingQty(false);
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast({
+        title: "Error updating item",
+        description: "Could not update the item status",
+        variant: "destructive",
+      });
+    }
+  };
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.partNo
@@ -497,10 +585,12 @@ export default function PartsCorner() {
                     <TableRow className="bg-muted/50">
                       <TableHead className="w-12">SL</TableHead>
                       <TableHead>Part No</TableHead>
-                      <TableHead className="text-right">Product Name</TableHead>
-                      <TableHead className="text-right">Qty</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Box No</TableHead>
+                      <TableHead className="text-center">
+                        Product Name
+                      </TableHead>
+                      <TableHead className=" text-center">Qty</TableHead>
+                      <TableHead className="text-center">Price</TableHead>
+                      <TableHead className="text-center">Box No</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -526,17 +616,33 @@ export default function PartsCorner() {
                         >
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item.partNo}</TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-center">
                             {item.productName}
                           </TableCell>
 
-                          <TableCell className="text-right">
-                            {item.qty}
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                disabled={loadingQty}
+                                onClick={(e) => handleDecrementQty(item._id, e)}
+                                className=" bg-blue-100 hover:bg-blue-200 px-1 py-0.5 rounded"
+                              >
+                                <Minus size={15} />
+                              </button>
+                              <span>{item.qty}</span>
+                              <button
+                                disabled={loadingQty}
+                                onClick={(e) => handleIncrementQty(item._id, e)}
+                                className=" bg-blue-100 hover:bg-blue-200 px-1 py-0.5 rounded"
+                              >
+                                <Plus size={15} />
+                              </button>
+                            </div>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-center">
                             {item.unitPrice.toFixed(2)}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-center">
                             {item.boxNo}
                           </TableCell>
                           <TableCell className="text-right">

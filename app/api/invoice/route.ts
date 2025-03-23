@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText("123 Parts Street, Warehouse District", {
+    page.drawText("Beside Sanabil Supar Market, Gangachara, Rangpur 5410", {
       x: rightColumnX,
       y: pageHeight - margin - 15,
       size: 10,
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       color: rgb(0, 0, 0),
     });
 
-    page.drawText("contact@partscorner.com | +1 234 567 8900", {
+    page.drawText("md.utshab85696@amail.com | 01792-703854", {
       x: rightColumnX,
       y: pageHeight - margin - 30,
       size: 10,
