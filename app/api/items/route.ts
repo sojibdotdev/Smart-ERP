@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       unitPrice: unitPrice,
       totalPrice: totalPrice,
       productName: data.productName,
-      BoxNo: data.BoxNo,
+      boxNo: data.boxNo,
     };
 
     // Insert the new item into the database
