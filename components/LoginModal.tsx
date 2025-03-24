@@ -42,13 +42,13 @@ const LoginModal = () => {
         <div className="fixed top-0 left-0 right-0 bg-gray-200/20 backdrop-blur-lg z-50 h-screen flex justify-center items-center">
           <form
             onSubmit={handleLogin}
-            className="bg-white p-5 rounded-lg shadow-lg flex flex-col space-y-4"
+            className="bg-white sm:w-96 w-full mx-5 p-5 rounded-lg shadow-lg flex flex-col space-y-4"
           >
             <h2 className="text-2xl font-semibold text-center">Login</h2>
             <div className="flex flex-col space-y-1 w-full">
               <label htmlFor="email">Email :</label>
               <input
-                className="w-96 outline-none border-2 border-gray-500 bg-transparent rounded-md p-2"
+                className=" w-full outline-none border-2 border-gray-500 bg-transparent rounded-md p-2"
                 type="email"
                 name="email"
                 id="email"
@@ -60,7 +60,7 @@ const LoginModal = () => {
             <div className="flex flex-col space-y-1 w-full">
               <label htmlFor="password">Password :</label>
               <input
-                className="outline-none border-2 border-gray-500 bg-transparent rounded-md p-2"
+                className="w-full outline-none border-2 border-gray-500 bg-transparent rounded-md p-2"
                 type="password"
                 name="password"
                 id="password"
