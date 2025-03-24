@@ -39,7 +39,7 @@ const LoginModal = () => {
   return (
     <>
       {isLoggedIn === false && (
-        <div className="fixed top-0 left-0 right-0 bg-gray-200/20 backdrop-blur-lg z-50 h-screen flex justify-center items-center">
+        <div className="fixed top-0 left-0 right-0 bg-white z-50 h-screen flex justify-center items-center">
           <form
             onSubmit={handleLogin}
             className="bg-white sm:w-96 w-full mx-5 p-5 rounded-lg shadow-lg flex flex-col space-y-4"
