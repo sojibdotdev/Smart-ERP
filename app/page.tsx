@@ -1,5 +1,6 @@
 "use client";
 
+import EditItemModal from "@/components/EditItemModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import {
   Download,
+  FilePenLine,
   FileText,
   Minus,
   Plus,
@@ -85,6 +87,8 @@ export default function PartsCorner() {
     productName: "",
     boxNo: "",
   });
+  const [showEditmodal, setShowEditModal] = useState(false);
+  const [singleItem, setSingleItem] = useState<RequisitionItem | null>(null);
 
   // Fetch items from API
   const fetchItems = async () => {
@@ -386,6 +390,53 @@ export default function PartsCorner() {
     }
   };
 
+  const handleEditItem = async (newItem: RequisitionItem) => {
+    try {
+      const item = items.find((item) => item._id === newItem._id);
+      if (!item) return;
+      const updatedItem = { ...item, ...newItem };
+      setItems(
+        items.map((item) =>
+          item._id === newItem._id ? { ...item, ...updatedItem } : item
+        )
+      );
+
+      const response = await fetch(`/api/items/${newItem._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          updatedItemData: {
+            partN0: newItem.partNo,
+            qty: newItem.qty,
+            unitPrice: newItem.unitPrice,
+            productName: newItem.productName,
+            boxNo: newItem.boxNo,
+          },
+        }),
+      });
+      if (response.ok) {
+        setItems(
+          items.map((item) =>
+            item._id === newItem._id ? { ...item, ...updatedItem } : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast({
+        title: "Error updating item",
+        description: "Could not update the item status",
+        variant: "destructive",
+      });
+    }
+  };
+  const handleEditBtn = (item: RequisitionItem) => {
+    setSingleItem(item);
+    setShowEditModal((prev) => !prev);
+  };
+
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.partNo
       .toLowerCase()
@@ -399,7 +450,16 @@ export default function PartsCorner() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 relative">
+      {showEditmodal && singleItem && (
+        <div className=" fixed   top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center">
+          <EditItemModal
+            handleEditItem={handleEditItem}
+            item={singleItem}
+            setShowEditModal={setShowEditModal}
+          />
+        </div>
+      )}
       <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
         <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left Section */}
@@ -640,14 +700,14 @@ export default function PartsCorner() {
                             </div>
                           </TableCell>
                           <TableCell className="text-center">
-                            {item.unitPrice.toFixed(2)}
+                            {item.unitPrice}
                           </TableCell>
                           <TableCell className="text-center">
                             {item.boxNo}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button
+                              {/* <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={(e) => {
@@ -657,6 +717,18 @@ export default function PartsCorner() {
                               >
                                 <FileText className="h-4 w-4" />
                                 <span className="sr-only">Highlight</span>
+                              </Button> */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleHighlight(item._id);
+                                  handleEditBtn(item);
+                                }}
+                              >
+                                <FilePenLine className="h-4 w-4 text-gray-600 " />
+                                <span className="sr-only">Edit</span>
                               </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -780,7 +852,7 @@ export default function PartsCorner() {
                 Total Items: {selectedItems.length}
               </p>
               <p className="text-lg font-bold">
-                Total: ₹
+                Total: ৳
                 {selectedItems
                   .reduce((sum, item) => sum + item.totalPrice, 0)
                   .toFixed(2)}

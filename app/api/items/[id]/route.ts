@@ -15,11 +15,12 @@ async function connectToDB() {
 // GET handler to retrieve a specific item
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const collection = await connectToDB();
-    const item = await collection.findOne({ _id: new ObjectId(params.id) });
+    const { id } = await params;
+    const item = await collection.findOne({ _id: new ObjectId(id) });
 
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
@@ -40,31 +41,33 @@ export async function GET(
 // PATCH handler to update a specific item
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const collection = await connectToDB();
+    const collection = await connectToDB(); // Should return a collection, not just client
     const data = await request.json();
+    const { id } = await params;
 
-    // Find the item to update
-    const item = await collection.findOne({ _id: new ObjectId(params.id) });
+    const item = await collection.findOne({ _id: new ObjectId(id) });
 
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
-    // Update the item
-    const updatedItem = { ...item, ...data };
+    let updatedItem = { ...item };
 
-    // Recalculate total price if quantity or unit price changed
-    if (data.qty) {
-      const qty = data.qty || item.qty;
-      updatedItem.qty = qty;
+    // If quantity is provided, recalculate or assign
+    if (data.qty !== undefined) {
+      updatedItem.qty = data.qty;
     }
 
-    // Save the updated item
+    // If updatedItemData object is provided, merge it into the item
+    if (data.updatedItemData) {
+      updatedItem = { ...updatedItem, ...data.updatedItemData };
+    }
+
     await collection.updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { $set: updatedItem }
     );
 
@@ -75,21 +78,19 @@ export async function PATCH(
       { error: "Failed to update item" },
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }
 
 // DELETE handler to remove a specific item
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const collection = await connectToDB();
-
+    const { id } = await params;
     // Delete the item
-    const result = await collection.deleteOne({ _id: new ObjectId(params.id) });
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
